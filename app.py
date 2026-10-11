@@ -5,7 +5,7 @@ import requests
 from authlib.integrations.flask_client import OAuth
 
 app = Flask(__name__)
-app.secret_key = 'ff_like_google_login_secret_key_v7'
+app.secret_key = 'ff_like_google_login_secret_key_v8'
 
 # --- GOOGLE OAUTH CONFIGURATION ---
 GOOGLE_CLIENT_ID = '779765298647-unvnl1t09js256rufltacdb4gn8o1g2b.apps.googleusercontent.com'
@@ -23,7 +23,7 @@ google = oauth.register(
 NAGAD_NUMBER = "01606837021"
 
 def get_db():
-    conn = sqlite3.connect('store_v7.db')
+    conn = sqlite3.connect('store_v8.db')
     conn.row_factory = sqlite3.Row
     return conn
 
@@ -82,10 +82,10 @@ HTML_LOGIN = '''
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
         body { background: #050b14; color: #fff; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
-        .box { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(16px); padding: 36px 28px; border-radius: 24px; width: 100%; max-width: 380px; border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7); text-align: center; }
-        .logo { font-size: 42px; background: linear-gradient(135deg, #0284c7, #38bdf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 12px; }
+        .box { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(16px); padding: 32px 24px; border-radius: 24px; width: 100%; max-width: 380px; border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7); text-align: center; }
+        .logo-img { width: 100%; border-radius: 14px; margin-bottom: 16px; border: 1px solid rgba(255,255,255,0.1); }
         h2 { font-size: 22px; font-weight: 800; letter-spacing: 0.5px; margin-bottom: 6px; }
-        p { font-size: 13px; color: #64748b; margin-bottom: 28px; }
+        p { font-size: 13px; color: #64748b; margin-bottom: 24px; }
         .google-btn { background: rgba(255, 255, 255, 0.05); color: #fff; border: 1px solid rgba(255, 255, 255, 0.15); width: 100%; padding: 14px; border-radius: 14px; font-weight: 600; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 12px; cursor: pointer; text-decoration: none; transition: 0.3s; }
         .google-btn:hover { background: rgba(255, 255, 255, 0.1); }
         .divider { display: flex; align-items: center; color: #475569; font-size: 12px; margin: 20px 0; }
@@ -100,7 +100,7 @@ HTML_LOGIN = '''
 </head>
 <body>
     <div class="box">
-        <div class="logo"><i class="fa-solid fa-thumbs-up"></i></div>
+        <img src="https://i.ibb.co/6P0x0Tf/FF-LIKE-LOGO.jpg" alt="GHOST X LIKES" class="logo-img" onerror="this.style.display='none'">
         <h2>GHOST X LIKES</h2>
         <p>Login to boost your Free Fire profile</p>
 
@@ -136,19 +136,21 @@ HTML_INDEX = '''
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
         body { background-color: #030712; color: #f8fafc; padding-bottom: 100px; min-height: 100vh; }
         
-        .top-nav { display: flex; justify-content: space-between; align-items: center; padding: 18px 16px; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255, 255, 255, 0.08); sticky: top: 0; z-index: 90; }
-        .brand { display: flex; align-items: center; gap: 12px; }
-        .brand-icon { width: 40px; height: 40px; background: linear-gradient(135deg, #0284c7, #38bdf8); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; color: #fff; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3); }
-        .brand-title h3 { font-size: 16px; font-weight: 800; letter-spacing: 0.5px; }
-        .brand-title p { font-size: 10px; color: #64748b; font-weight: 700; letter-spacing: 0.5px; }
+        .top-nav { display: flex; justify-content: space-between; align-items: center; padding: 16px; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255, 255, 255, 0.08); position: sticky; top: 0; z-index: 90; }
+        .brand { display: flex; align-items: center; gap: 10px; }
+        .brand-icon { width: 38px; height: 38px; background: linear-gradient(135deg, #0284c7, #38bdf8); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; color: #fff; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3); }
+        .brand-title h3 { font-size: 15px; font-weight: 800; letter-spacing: 0.5px; }
+        .brand-title p { font-size: 9px; color: #64748b; font-weight: 700; letter-spacing: 0.5px; }
         
         .top-actions { display: flex; align-items: center; gap: 10px; }
         .badge-balance { background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(56, 189, 248, 0.3); padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 700; color: #38bdf8; display: flex; align-items: center; gap: 6px; }
-        .icon-btn { width: 34px; height: 34px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 14px; }
-        .avatar { width: 36px; height: 36px; background: linear-gradient(135deg, #2563eb, #1d4ed8); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; border: 2px solid rgba(255,255,255,0.1); }
+        .avatar { width: 34px; height: 34px; background: linear-gradient(135deg, #2563eb, #1d4ed8); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; border: 2px solid rgba(255,255,255,0.1); }
         
-        .container { padding: 18px 16px; }
+        .container { padding: 16px; }
         
+        .banner-box { width: 100%; border-radius: 18px; overflow: hidden; margin-bottom: 16px; border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 8px 20px rgba(0,0,0,0.4); }
+        .banner-box img { width: 100%; display: block; }
+
         .header-card { background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.6)); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 20px; padding: 20px; margin-bottom: 20px; backdrop-filter: blur(10px); }
         .greeting { font-size: 15px; color: #94a3b8; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
         .balance-label { font-size: 11px; text-transform: uppercase; color: #64748b; font-weight: 700; letter-spacing: 0.5px; margin-top: 10px; }
@@ -196,12 +198,16 @@ HTML_INDEX = '''
         </div>
         <div class="top-actions">
             <div class="badge-balance"><i class="fa-solid fa-wallet" style="font-size:12px;"></i> ৳{{ "%.2f"|format(user.balance) }}</div>
-            <div class="icon-btn"><i class="fa-regular fa-bell"></i></div>
             <div class="avatar">{{ user.full_name[:2].upper() if user.full_name else user.username[:2].upper() }}</div>
         </div>
     </div>
 
     <div class="container">
+        <!-- Banner Photo -->
+        <div class="banner-box">
+            <img src="https://i.ibb.co/6P0x0Tf/FF-LIKE-LOGO.jpg" alt="FF LIKE Banner">
+        </div>
+
         <div class="header-card">
             <div class="greeting">👋 Hi, <b>{{ user.full_name or user.username }}</b></div>
             <div class="balance-label">AVAILABLE BALANCE</div>
