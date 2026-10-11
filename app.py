@@ -1,12 +1,26 @@
-from flask import Flask, render_template_string, request, redirect, url_for, session, flash
+from flask import Flask, render_template_string, request, redirect, url_for, session
 import sqlite3
 import os
+from authlib.integrations.flask_client import OAuth
 
 app = Flask(__name__)
-app.secret_key = 'ff_like_secret_key_v2'
+app.secret_key = 'ff_like_google_login_secret_key'
+
+# --- GOOGLE OAUTH CONFIGURATION ---
+GOOGLE_CLIENT_ID = '779765298647-unvnl1t09js256rufltacdb4gn8o1g2b.apps.googleusercontent.com'
+GOOGLE_CLIENT_SECRET = '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'
+
+oauth = OAuth(app)
+google = oauth.register(
+    name='google',
+    client_id=GOOGLE_CLIENT_ID,
+    client_secret=GOOGLE_CLIENT_SECRET,
+    server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
+    client_kwargs={'scope': 'openid email profile'}
+)
 
 def get_db():
-    conn = sqlite3.connect('store_v3.db')
+    conn = sqlite3.connect('store_v5.db')
     conn.row_factory = sqlite3.Row
     return conn
 
@@ -67,7 +81,7 @@ HTML_LOGIN = '''
         .logo { font-size: 36px; color: #38bdf8; margin-bottom: 12px; }
         h2 { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
         p { font-size: 13px; color: #64748b; margin-bottom: 24px; }
-        .google-btn { background: #1e293b; color: #fff; border: 1px solid #334155; width: 100%; padding: 12px; border-radius: 10px; font-weight: 600; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; margin-bottom: 20px; }
+        .google-btn { background: #1e293b; color: #fff; border: 1px solid #334155; width: 100%; padding: 12px; border-radius: 10px; font-weight: 600; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; margin-bottom: 20px; text-decoration: none; }
         .divider { display: flex; align-items: center; color: #475569; font-size: 12px; margin: 16px 0; }
         .divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: #1e293b; }
         .divider span { padding: 0 10px; }
@@ -84,9 +98,9 @@ HTML_LOGIN = '''
         <h2>FF LIKES STORE</h2>
         <p>Login to boost your Free Fire profile</p>
 
-        <button class="google-btn" onclick="alert('Google Login configuration required in settings.')">
+        <a href="/login/google" class="google-btn">
             <i class="fa-brands fa-google" style="color: #ea4335;"></i> Continue with Google
-        </button>
+        </a>
 
         <div class="divider"><span>OR</span></div>
 
@@ -541,6 +555,38 @@ def login():
             return redirect(url_for('home'))
             
     return render_template_string(HTML_LOGIN)
+
+# --- GOOGLE OAUTH ROUTES ---
+@app.route('/login/google')
+def google_login():
+    redirect_uri = url_for('google_auth', _external=True)
+    return google.authorize_redirect(redirect_uri)
+
+@app.route('/authorize')
+def google_auth():
+    token = google.authorize_access_token()
+    user_info = token.get('userinfo')
+    
+    if not user_info:
+        resp = google.get('https://www.googleapis.com/oauth2/v3/userinfo')
+        user_info = resp.json()
+    
+    google_email = user_info['email']
+    
+    conn = get_db()
+    user = conn.execute("SELECT * FROM users WHERE username = ?", (google_email,)).fetchone()
+    
+    if not user:
+        conn.execute("INSERT INTO users (username, password, role) VALUES (?, ?, ?)", (google_email, 'google_authenticated', 'user'))
+        conn.commit()
+        user = conn.execute("SELECT * FROM users WHERE username = ?", (google_email,)).fetchone()
+    
+    session['user_id'] = user['id']
+    session['username'] = user['username']
+    session['role'] = user['role']
+    conn.close()
+    
+    return redirect(url_for('home'))
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
