@@ -3,129 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FF Like Store - Premium Top Up</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <title>FF Diamond Store</title>
     <style>
-        body { background-color: #0d1117; color: #c9d1d9; font-family: sans-serif; }
-        .neon-card { background: #161b22; border: 1px solid #30363d; box-shadow: 0 0 15px rgba(0, 255, 204, 0.1); }
-        .neon-btn { background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%); color: #000; font-weight: bold; }
-        .neon-btn:hover { opacity: 0.9; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+        body { background-color: #0f172a; color: #fff; padding: 20px; }
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #1e293b; border-radius: 10px; margin-bottom: 20px; }
+        .balance { font-weight: bold; color: #38bdf8; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+        .card { background: #1e293b; padding: 15px; border-radius: 10px; text-align: center; border: 1px solid #334155; }
+        .card h3 { color: #f59e0b; margin-bottom: 10px; }
+        .card p { margin-bottom: 15px; font-size: 18px; font-weight: bold; }
+        input, button { width: 100%; padding: 10px; margin-top: 5px; border-radius: 5px; border: none; }
+        input { background: #0f172a; color: #fff; border: 1px solid #334155; }
+        button { background: #2563eb; color: #fff; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        button:hover { background: #1d4ed8; }
+        .deposit-section { background: #1e293b; padding: 20px; border-radius: 10px; margin-top: 30px; }
+        a { color: #f87171; text-decoration: none; }
     </style>
 </head>
-<body class="p-4 max-w-md mx-auto">
+<body>
 
-    <!-- Header -->
-    <div class="text-center my-6">
-        <h1 class="text-3xl font-extrabold text-cyan-400 tracking-wider">FF LIKE STORE</h1>
-        <p class="text-xs text-gray-400 mt-1">Instant Automated Diamond TopUp</p>
-    </div>
-
-    <!-- Account & Balance Section -->
-    <div class="neon-card p-4 rounded-xl mb-6">
-        <div class="flex justify-between items-center mb-3">
-            <span class="text-sm font-semibold">User ID:</span>
-            <input type="text" id="userId" placeholder="Enter Your ID" class="bg-gray-800 text-white px-2 py-1 rounded text-sm w-36 outline-none border border-gray-700" onchange="fetchBalance()">
-        </div>
-        <div class="flex justify-between items-center text-cyan-300">
-            <span class="text-sm">Current Balance:</span>
-            <span id="userBalance" class="text-lg font-bold">0.0 BDT</span>
+    <div class="header">
+        <h2>🔥 Free Fire Store</h2>
+        <div>
+            <span>User: <b>{{ user.username }}</b></span> | 
+            <span class="balance">Balance: ৳{{ user.balance }}</span> | 
+            <a href="/logout">Logout</a>
         </div>
     </div>
 
-    <!-- Deposit Section -->
-    <div class="neon-card p-4 rounded-xl mb-6">
-        <h2 class="text-md font-bold text-cyan-400 mb-2 flex items-center gap-1"><i data-lucide="wallet"></i> Nagad Auto Deposit</h2>
-        <p class="text-xs text-gray-400 mb-2">Send Money to: <b class="text-yellow-400">{{ nagad_num }}</b></p>
-        <div class="space-y-2">
-            <input type="text" id="trxId" placeholder="Nagad TrxID" class="w-full bg-gray-800 p-2 rounded text-sm border border-gray-700 outline-none">
-            <input type="number" id="depAmount" placeholder="Amount (BDT)" class="w-full bg-gray-800 p-2 rounded text-sm border border-gray-700 outline-none">
-            <button onclick="submitDeposit()" class="w-full neon-btn py-2 rounded text-sm">Add Balance</button>
+    <h3>💎 Diamond Packages</h3>
+    <br>
+    <div class="grid">
+        <div class="card">
+            <h3>115 Diamonds</h3>
+            <p>৳ 80</p>
+            <form action="/buy" method="post">
+                <input type="hidden" name="item_name" value="115 Diamonds">
+                <input type="hidden" name="price" value="80">
+                <input type="text" name="player_id" placeholder="Enter Player UID" required>
+                <button type="submit">Buy Now</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h3>240 Diamonds</h3>
+            <p>৳ 160</p>
+            <form action="/buy" method="post">
+                <input type="hidden" name="item_name" value="240 Diamonds">
+                <input type="hidden" name="price" value="160">
+                <input type="text" name="player_id" placeholder="Enter Player UID" required>
+                <button type="submit">Buy Now</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h3>610 Diamonds</h3>
+            <p>৳ 400</p>
+            <form action="/buy" method="post">
+                <input type="hidden" name="item_name" value="610 Diamonds">
+                <input type="hidden" name="price" value="400">
+                <input type="text" name="player_id" placeholder="Enter Player UID" required>
+                <button type="submit">Buy Now</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h3>Weekly Membership</h3>
+            <p>৳ 170</p>
+            <form action="/buy" method="post">
+                <input type="hidden" name="item_name" value="Weekly Membership">
+                <input type="hidden" name="price" value="170">
+                <input type="text" name="player_id" placeholder="Enter Player UID" required>
+                <button type="submit">Buy Now</button>
+            </form>
         </div>
     </div>
 
-    <!-- Packages Section -->
-    <div class="neon-card p-4 rounded-xl mb-6">
-        <h2 class="text-md font-bold text-cyan-400 mb-3 flex items-center gap-1"><i data-lucide="shopping-bag"></i> Select Package</h2>
-        <input type="text" id="playerId" placeholder="Free Fire Player ID" class="w-full bg-gray-800 p-2 rounded text-sm border border-gray-700 outline-none mb-3">
-        
-        <div class="grid grid-cols-2 gap-2">
-            <button onclick="buyPackage('115 Diamonds', 80)" class="bg-gray-800 p-3 rounded-lg border border-gray-700 hover:border-cyan-400 text-left">
-                <div class="text-sm font-bold text-white">115 Diamonds</div>
-                <div class="text-xs text-cyan-400">80 BDT</div>
-            </button>
-            <button onclick="buyPackage('240 Diamonds', 160)" class="bg-gray-800 p-3 rounded-lg border border-gray-700 hover:border-cyan-400 text-left">
-                <div class="text-sm font-bold text-white">240 Diamonds</div>
-                <div class="text-xs text-cyan-400">160 BDT</div>
-            </button>
-            <button onclick="buyPackage('610 Diamonds', 400)" class="bg-gray-800 p-3 rounded-lg border border-gray-700 hover:border-cyan-400 text-left">
-                <div class="text-sm font-bold text-white">610 Diamonds</div>
-                <div class="text-xs text-cyan-400">400 BDT</div>
-            </button>
-            <button onclick="buyPackage('Weekly Membership', 160)" class="bg-gray-800 p-3 rounded-lg border border-gray-700 hover:border-cyan-400 text-left">
-                <div class="text-sm font-bold text-white">Weekly Pack</div>
-                <div class="text-xs text-cyan-400">160 BDT</div>
-            </button>
-        </div>
+    <div class="deposit-section">
+        <h3>💵 Add Balance (bKash/Nagad)</h3>
+        <p style="font-size: 14px; color: #94a3b8; margin: 5px 0 15px 0;">Send Money to: <b>017XXXXXXXX</b> (Personal)</p>
+        <form action="/deposit" method="post">
+            <input type="number" name="amount" placeholder="Amount (৳)" required><br><br>
+            <input type="text" name="trx_id" placeholder="Transaction ID (TrxID)" required><br><br>
+            <button type="submit" style="background: #10b981;">Submit Deposit</button>
+        </form>
     </div>
 
-    <script>
-        lucide.createIcons();
-
-        function fetchBalance() {
-            let userId = document.getElementById('userId').value;
-            if(!userId) return;
-            fetch(`/api/get_balance?user_id=${userId}`)
-                .then(res => res.json())
-                .then(data => {
-                    if(data.success) {
-                        document.getElementById('userBalance').innerText = `${data.balance} BDT`;
-                    }
-                });
-        }
-
-        function submitDeposit() {
-            let userId = document.getElementById('userId').value;
-            let trxId = document.getElementById('trxId').value;
-            let amount = document.getElementById('depAmount').value;
-
-            if(!userId || !trxId || !amount) {
-                alert('Please fill all deposit details!');
-                return;
-            }
-
-            fetch('/api/verify_deposit', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({user_id: userId, trx_id: trxId, amount: amount})
-            })
-            .then(res => res.json())
-            .then(data => {
-                alert(data.message);
-                if(data.success) fetchBalance();
-            });
-        }
-
-        function buyPackage(itemName, price) {
-            let userId = document.getElementById('userId').value;
-            let playerId = document.getElementById('playerId').value;
-
-            if(!userId || !playerId) {
-                alert('Please enter both User ID and Player ID!');
-                return;
-            }
-
-            fetch('/api/buy_item', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({user_id: userId, player_id: playerId, item_name: itemName, price: price})
-            })
-            .then(res => res.json())
-            .then(data => {
-                alert(data.message);
-                if(data.success) fetchBalance();
-            });
-        }
-    </script>
 </body>
 </html>
