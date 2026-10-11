@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders - FF Likes Store</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background: #0b1120; color: #fff; padding: 16px; padding-bottom: 90px; }
+        h2 { margin-bottom: 16px; font-size: 20px; }
+        
+        .order-card { background: #1e293b; border: 1px solid #334155; border-radius: 14px; padding: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .order-info h4 { font-size: 15px; color: #38bdf8; margin-bottom: 4px; }
+        .order-info p { font-size: 12px; color: #94a3b8; }
+        .order-status { font-size: 12px; font-weight: bold; padding: 4px 10px; border-radius: 20px; }
+        .status-pending { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+        .status-completed { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+        
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #0f172a; border-top: 1px solid #1e293b; display: flex; justify-content: space-around; padding: 10px 0; z-index: 100; }
+        .nav-item { text-align: center; color: #64748b; text-decoration: none; font-size: 11px; }
+        .nav-item i { font-size: 18px; display: block; margin-bottom: 3px; }
+        .nav-item.active { color: #38bdf8; }
+    </style>
+</head>
+<body>
+    <h2>My Orders History</h2>
+
+    {% for order in orders %}
+    <div class="order-card">
+        <div class="order-info">
+            <h4>{{ order.item_name }}</h4>
+            <p>UID: {{ order.player_id }} | ৳{{ order.price }}</p>
+        </div>
+        <div class="order-status {% if order.status == 'Completed' %}status-completed{% else %}status-pending{% endif %}">
+            {{ order.status }}
+        </div>
+    </div>
+    {% else %}
+    <p style="color: #64748b; font-size: 14px;">No orders found yet.</p>
+    {% endfor %}
+
+    <div class="bottom-nav">
+        <a href="/" class="nav-item"><i class="fa-solid fa-house"></i>Home</a>
+        <a href="/orders" class="nav-item active"><i class="fa-solid fa-box-archive"></i>Orders</a>
+        <a href="/wallet" class="nav-item"><i class="fa-solid fa-wallet"></i>Wallet</a>
+        <a href="/logout" class="nav-item"><i class="fa-solid fa-right-from-bracket"></i>Logout</a>
+    </div>
+</body>
+</html>
