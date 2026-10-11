@@ -3,91 +3,140 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FF Diamond Store</title>
+    <title>FF LIKES BOT - Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
-        body { background-color: #0f172a; color: #fff; padding: 20px; }
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #1e293b; border-radius: 10px; margin-bottom: 20px; }
-        .balance { font-weight: bold; color: #38bdf8; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
-        .card { background: #1e293b; padding: 15px; border-radius: 10px; text-align: center; border: 1px solid #334155; }
-        .card h3 { color: #f59e0b; margin-bottom: 10px; }
-        .card p { margin-bottom: 15px; font-size: 18px; font-weight: bold; }
-        input, button { width: 100%; padding: 10px; margin-top: 5px; border-radius: 5px; border: none; }
-        input { background: #0f172a; color: #fff; border: 1px solid #334155; }
-        button { background: #2563eb; color: #fff; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        button:hover { background: #1d4ed8; }
-        .deposit-section { background: #1e293b; padding: 20px; border-radius: 10px; margin-top: 30px; }
-        a { color: #f87171; text-decoration: none; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background-color: #0b1120; color: #f8fafc; padding-bottom: 90px; }
+        
+        .top-nav { display: flex; justify-content: space-between; align-items: center; padding: 16px; background: #0f172a; border-bottom: 1px solid #1e293b; }
+        .brand { display: flex; align-items: center; gap: 10px; }
+        .brand-icon { width: 36px; height: 36px; background: #38bdf8; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #0f172a; }
+        .brand-title h3 { font-size: 15px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .brand-title p { font-size: 11px; color: #64748b; }
+        
+        .top-actions { display: flex; align-items: center; gap: 10px; }
+        .badge-balance { background: #1e293b; border: 1px solid #334155; padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; color: #38bdf8; }
+        .avatar { width: 32px; height: 32px; background: #2563eb; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; }
+
+        .container { padding: 16px; }
+        .banner { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border: 1px solid #334155; border-radius: 16px; padding: 16px; margin-bottom: 16px; text-align: center; }
+        .banner h2 { font-size: 18px; color: #38bdf8; margin-bottom: 4px; }
+        
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+        .stat-card { background: #1e293b; border: 1px solid #334155; padding: 14px; border-radius: 14px; display: flex; align-items: center; gap: 12px; }
+        .stat-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+        .icon-purple { background: rgba(168, 85, 247, 0.15); color: #c084fc; }
+        .icon-amber { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+        .icon-emerald { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+        .stat-info h4 { font-size: 18px; font-weight: 700; }
+        .stat-info p { font-size: 11px; color: #94a3b8; text-transform: uppercase; }
+
+        .section-title { font-size: 16px; font-weight: 700; margin-bottom: 12px; color: #f1f5f9; }
+        .like-cards { display: grid; gap: 12px; margin-bottom: 24px; }
+        .package-card { background: #1e293b; border: 1px solid #334155; border-radius: 14px; padding: 16px; display: flex; justify-content: space-between; align-items: center; }
+        .pkg-details h4 { font-size: 16px; color: #38bdf8; margin-bottom: 4px; }
+        .pkg-details p { font-size: 14px; font-weight: bold; color: #e2e8f0; }
+        .buy-form { display: flex; gap: 8px; }
+        .buy-form input { background: #0f172a; border: 1px solid #334155; color: #fff; padding: 8px 12px; border-radius: 8px; font-size: 12px; width: 110px; outline: none; }
+        .buy-form button { background: #0284c7; color: #fff; border: none; padding: 8px 14px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 12px; }
+
+        /* Bottom Nav */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #0f172a; border-top: 1px solid #1e293b; display: flex; justify-content: space-around; padding: 10px 0; z-index: 100; }
+        .nav-item { text-align: center; color: #64748b; text-decoration: none; font-size: 11px; }
+        .nav-item i { font-size: 18px; display: block; margin-bottom: 3px; }
+        .nav-item.active { color: #38bdf8; }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <h2>🔥 Free Fire Store</h2>
-        <div>
-            <span>User: <b>{{ user.username }}</b></span> | 
-            <span class="balance">Balance: ৳{{ user.balance }}</span> | 
-            <a href="/logout">Logout</a>
+    <div class="top-nav">
+        <div class="brand">
+            <div class="brand-icon"><i class="fa-solid fa-thumbs-up"></i></div>
+            <div class="brand-title">
+                <h3>FF LIKES STORE</h3>
+                <p>PLAYER DASHBOARD</p>
+            </div>
+        </div>
+        <div class="top-actions">
+            <div class="badge-balance">৳{{ user.balance }}</div>
+            <div class="avatar">{{ user.username[:2].upper() }}</div>
         </div>
     </div>
 
-    <h3>💎 Diamond Packages</h3>
-    <br>
-    <div class="grid">
-        <div class="card">
-            <h3>115 Diamonds</h3>
-            <p>৳ 80</p>
-            <form action="/buy" method="post">
-                <input type="hidden" name="item_name" value="115 Diamonds">
-                <input type="hidden" name="price" value="80">
-                <input type="text" name="player_id" placeholder="Enter Player UID" required>
-                <button type="submit">Buy Now</button>
-            </form>
+    <div class="container">
+        <div class="banner">
+            <h2>Hi, {{ user.username }} 👋</h2>
+            <p style="font-size: 12px; color: #94a3b8;">Welcome back to your Like Booster dashboard</p>
         </div>
 
-        <div class="card">
-            <h3>240 Diamonds</h3>
-            <p>৳ 160</p>
-            <form action="/buy" method="post">
-                <input type="hidden" name="item_name" value="240 Diamonds">
-                <input type="hidden" name="price" value="160">
-                <input type="text" name="player_id" placeholder="Enter Player UID" required>
-                <button type="submit">Buy Now</button>
-            </form>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon icon-amber"><i class="fa-solid fa-box"></i></div>
+                <div class="stat-info">
+                    <h4>{{ total_orders }}</h4>
+                    <p>TOTAL ORDERS</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon icon-emerald"><i class="fa-solid fa-coins"></i></div>
+                <div class="stat-info">
+                    <h4>৳{{ total_spent }}</h4>
+                    <p>TOTAL SPENT</p>
+                </div>
+            </div>
         </div>
 
-        <div class="card">
-            <h3>610 Diamonds</h3>
-            <p>৳ 400</p>
-            <form action="/buy" method="post">
-                <input type="hidden" name="item_name" value="610 Diamonds">
-                <input type="hidden" name="price" value="400">
-                <input type="text" name="player_id" placeholder="Enter Player UID" required>
-                <button type="submit">Buy Now</button>
-            </form>
-        </div>
+        <div class="section-title">🔥 Order Free Fire Likes</div>
+        <div class="like-cards">
+            <!-- Higher Price Custom Rates -->
+            <div class="package-card">
+                <div class="pkg-details">
+                    <h4>100 Likes Instant</h4>
+                    <p>৳ 12.00</p>
+                </div>
+                <form action="/buy" method="post" class="buy-form">
+                    <input type="hidden" name="item_name" value="100 Likes Instant">
+                    <input type="hidden" name="price" value="12">
+                    <input type="text" name="player_id" placeholder="Player UID" required>
+                    <button type="submit">Order</button>
+                </form>
+            </div>
 
-        <div class="card">
-            <h3>Weekly Membership</h3>
-            <p>৳ 170</p>
-            <form action="/buy" method="post">
-                <input type="hidden" name="item_name" value="Weekly Membership">
-                <input type="hidden" name="price" value="170">
-                <input type="text" name="player_id" placeholder="Enter Player UID" required>
-                <button type="submit">Buy Now</button>
-            </form>
+            <div class="package-card">
+                <div class="pkg-details">
+                    <h4>500 Likes Package</h4>
+                    <p>৳ 55.00</p>
+                </div>
+                <form action="/buy" method="post" class="buy-form">
+                    <input type="hidden" name="item_name" value="500 Likes Package">
+                    <input type="hidden" name="price" value="55">
+                    <input type="text" name="player_id" placeholder="Player UID" required>
+                    <button type="submit">Order</button>
+                </form>
+            </div>
+
+            <div class="package-card">
+                <div class="pkg-details">
+                    <h4>1000 Likes Mega Pack</h4>
+                    <p>৳ 100.00</p>
+                </div>
+                <form action="/buy" method="post" class="buy-form">
+                    <input type="hidden" name="item_name" value="1000 Likes Mega Pack">
+                    <input type="hidden" name="price" value="100">
+                    <input type="text" name="player_id" placeholder="Player UID" required>
+                    <button type="submit">Order</button>
+                </form>
+            </div>
         </div>
     </div>
 
-    <div class="deposit-section">
-        <h3>💵 Add Balance (bKash/Nagad)</h3>
-        <p style="font-size: 14px; color: #94a3b8; margin: 5px 0 15px 0;">Send Money to: <b>017XXXXXXXX</b> (Personal)</p>
-        <form action="/deposit" method="post">
-            <input type="number" name="amount" placeholder="Amount (৳)" required><br><br>
-            <input type="text" name="trx_id" placeholder="Transaction ID (TrxID)" required><br><br>
-            <button type="submit" style="background: #10b981;">Submit Deposit</button>
-        </form>
+    <!-- Bottom Navigation Bar Barring Guild -->
+    <div class="bottom-nav">
+        <a href="/" class="nav-item active"><i class="fa-solid fa-house"></i>Home</a>
+        <a href="/orders" class="nav-item"><i class="fa-solid fa-box-archive"></i>Orders</a>
+        <a href="/wallet" class="nav-item"><i class="fa-solid fa-wallet"></i>Wallet</a>
+        <a href="/logout" class="nav-item"><i class="fa-solid fa-right-from-bracket"></i>Logout</a>
     </div>
 
 </body>
