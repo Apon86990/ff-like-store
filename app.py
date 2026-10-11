@@ -1,147 +1,217 @@
 import os
 import sqlite3
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 import requests
-from flask import Flask, render_template, request, jsonify, redirect, url_for
 
 app = Flask(__name__)
+app.secret_key = os.environ.get('SECRET_KEY', 'ff_store_secret_key_12345')
 
-# Config
-NAGAD_NUMBER = "01700000000"  # Apnar Nagad Personal/Merchant Number
-ADMIN_KEY = "apon1234"         # Admin Panel Access Key
+DB_NAME = 'database.db'
 
 def init_db():
-    conn = sqlite3.connect('store.db')
+    conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
+    
+    # Users Table
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id TEXT UNIQUE,
-            balance REAL DEFAULT 0.0
+            username TEXT UNIQUE NOT NULL,
+            password TEXT NOT NULL,
+            balance REAL DEFAULT 0.0,
+            role TEXT DEFAULT 'user'
         )
     ''')
+    
+    # Deposits Table
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS deposits (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            trx_id TEXT UNIQUE,
-            amount REAL,
-            user_id TEXT,
-            status TEXT DEFAULT 'APPROVED'
+            username TEXT NOT NULL,
+            amount REAL NOT NULL,
+            trx_id TEXT NOT NULL,
+            status TEXT DEFAULT 'Pending'
         )
     ''')
+    
+    # Orders Table
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS orders (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id TEXT,
-            player_id TEXT,
-            item_name TEXT,
-            price REAL,
-            status TEXT DEFAULT 'PENDING'
+            username TEXT NOT NULL,
+            item_name TEXT NOT NULL,
+            player_id TEXT NOT NULL,
+            price REAL NOT NULL,
+            status TEXT DEFAULT 'Pending'
         )
     ''')
+    
+    # Admin User Creation (if not exists)
+    cursor.execute("SELECT * FROM users WHERE username = 'admin'")
+    if not cursor.fetchone():
+        cursor.execute("INSERT INTO users (username, password, role) VALUES ('admin', 'admin123', 'admin')")
+        
     conn.commit()
     conn.close()
 
+# Initialize DB on start
 init_db()
+
+def get_db_connection():
+    conn = sqlite3.connect(DB_NAME)
+    conn.row_factory = sqlite3.Row
+    return conn
 
 @app.route('/')
 def home():
-    return render_template('index.html', nagad_num=NAGAD_NUMBER)
-
-@app.route('/api/get_balance', methods=['GET'])
-def get_balance():
-    user_id = request.args.get('user_id')
-    if not user_id:
-        return jsonify({'success': False, 'message': 'User ID required'})
+    if 'username' not in session:
+        return redirect(url_for('login'))
     
-    conn = sqlite3.connect('store.db')
-    cursor = conn.cursor()
-    cursor.execute("SELECT balance FROM users WHERE user_id = ?", (user_id,))
-    row = cursor.fetchone()
-    if not row:
-        cursor.execute("INSERT INTO users (user_id, balance) VALUES (?, ?)", (user_id, 0.0))
+    conn = get_db_connection()
+    user = conn.execute('SELECT * FROM users WHERE username = ?', (session['username'],)).fetchone()
+    conn.close()
+    
+    return render_template('index.html', user=user)
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        
+        conn = get_db_connection()
+        user = conn.execute('SELECT * FROM users WHERE username = ? AND password = ?', (username, password)).fetchone()
+        conn.close()
+        
+        if user:
+            session['username'] = user['username']
+            session['role'] = user['role']
+            if user['role'] == 'admin':
+                return redirect(url_for('admin'))
+            return redirect(url_for('home'))
+        else:
+            return "Invalid Username or Password!"
+            
+    return render_template('login.html') if os.path.exists('templates/login.html') else '''
+        <form method="post">
+            <h2>Login</h2>
+            Username: <input type="text" name="username" required><br><br>
+            Password: <input type="password" name="password" required><br><br>
+            <input type="submit" value="Login">
+        </form>
+    '''
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        
+        try:
+            conn = get_db_connection()
+            conn.execute('INSERT INTO users (username, password) VALUES (?, ?)', (username, password))
+            conn.commit()
+            conn.close()
+            return redirect(url_for('login'))
+        except sqlite3.IntegrityError:
+            return "Username already exists!"
+            
+    return render_template('register.html') if os.path.exists('templates/register.html') else '''
+        <form method="post">
+            <h2>Register</h2>
+            Username: <input type="text" name="username" required><br><br>
+            Password: <input type="password" name="password" required><br><br>
+            <input type="submit" value="Register">
+        </form>
+    '''
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('login'))
+
+@app.route('/deposit', methods=['POST'])
+def deposit():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+        
+    amount = request.form.get('amount')
+    trx_id = request.form.get('trx_id')
+    
+    conn = get_db_connection()
+    conn.execute('INSERT INTO deposits (username, amount, trx_id) VALUES (?, ?, ?)',
+                 (session['username'], amount, trx_id))
+    conn.commit()
+    conn.close()
+    
+    return redirect(url_for('home'))
+
+@app.route('/buy', methods=['POST'])
+def buy():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+        
+    item_name = request.form.get('item_name')
+    player_id = request.form.get('player_id')
+    price = float(request.form.get('price', 0))
+    
+    conn = get_db_connection()
+    user = conn.execute('SELECT * FROM users WHERE username = ?', (session['username'],)).fetchone()
+    
+    if user['balance'] >= price:
+        # Deduct balance & add order
+        new_balance = user['balance'] - price
+        conn.execute('UPDATE users SET balance = ? WHERE username = ?', (new_balance, session['username']))
+        conn.execute('INSERT INTO orders (username, item_name, player_id, price) VALUES (?, ?, ?, ?)',
+                     (session['username'], item_name, player_id, price))
         conn.commit()
-        balance = 0.0
+        conn.close()
+        return redirect(url_for('home'))
     else:
-        balance = row[0]
-    conn.close()
-    return jsonify({'success': True, 'balance': balance})
-
-@app.route('/api/verify_deposit', methods=['POST'])
-def verify_deposit():
-    data = request.json
-    user_id = data.get('user_id')
-    trx_id = data.get('trx_id')
-    amount = float(data.get('amount', 0))
-
-    if not user_id or not trx_id or amount <= 0:
-        return jsonify({'success': False, 'message': 'Invalid data submitted'})
-
-    conn = sqlite3.connect('store.db')
-    cursor = conn.cursor()
-    try:
-        cursor.execute("INSERT INTO deposits (trx_id, amount, user_id) VALUES (?, ?, ?)", (trx_id, amount, user_id))
-        cursor.execute("UPDATE users SET balance = balance + ? WHERE user_id = ?", (amount, user_id))
-        conn.commit()
         conn.close()
-        return jsonify({'success': True, 'message': f'{amount} BDT added to account successfully!'})
-    except sqlite3.IntegrityError:
-        conn.close()
-        return jsonify({'success': False, 'message': 'Transaction ID already used!'})
-
-@app.route('/api/buy_item', methods=['POST'])
-def buy_item():
-    data = request.json
-    user_id = data.get('user_id')
-    player_id = data.get('player_id')
-    item_name = data.get('item_name')
-    price = float(data.get('price', 0))
-
-    conn = sqlite3.connect('store.db')
-    cursor = conn.cursor()
-    cursor.execute("SELECT balance FROM users WHERE user_id = ?", (user_id,))
-    row = cursor.fetchone()
-
-    if not row or row[0] < price:
-        conn.close()
-        return jsonify({'success': False, 'message': 'Insufficient Balance! Please deposit first.'})
-
-    # Deduct balance
-    cursor.execute("UPDATE users SET balance = balance - ? WHERE user_id = ?", (price, user_id))
-    cursor.execute("INSERT INTO orders (user_id, player_id, item_name, price) VALUES (?, ?, ?, ?)", 
-                   (user_id, player_id, item_name, price))
-    conn.commit()
-
-    # Automate API Order to fflikebd.site
-    try:
-        api_res = requests.post("https://fflikebd.site/api/order", json={
-            "player_id": player_id,
-            "package": item_name
-        }, timeout=10)
-        status = 'COMPLETED' if api_res.status_code == 200 else 'PROCESSING'
-    except Exception:
-        status = 'PROCESSING'
-
-    cursor.execute("UPDATE orders SET status = ? WHERE id = (SELECT max(id) FROM orders)", (status,))
-    conn.commit()
-    conn.close()
-
-    return jsonify({'success': True, 'message': f'Order placed successfully! Status: {status}'})
+        return "Insufficient Balance!"
 
 @app.route('/admin')
-def admin_panel():
-    key = request.args.get('key')
-    if key != ADMIN_KEY:
-        return "Unauthorized Access", 403
-
-    conn = sqlite3.connect('store.db')
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM orders ORDER BY id DESC")
-    orders = cursor.fetchall()
-    cursor.execute("SELECT * FROM deposits ORDER BY id DESC")
-    deposits = cursor.fetchall()
+def admin():
+    if 'role' not in session or session['role'] != 'admin':
+        return "Access Denied!"
+        
+    conn = get_db_connection()
+    deposits = conn.execute('SELECT * FROM deposits WHERE status = "Pending"').fetchall()
+    orders = conn.execute('SELECT * FROM orders WHERE status = "Pending"').fetchall()
     conn.close()
+    
+    return render_template('admin.html', deposits=deposits, orders=orders)
 
-    return render_template('admin.html', orders=orders, deposits=deposits)
+@app.route('/admin/approve_deposit/<int:id>')
+def approve_deposit(id):
+    if 'role' not in session or session['role'] != 'admin':
+        return "Access Denied!"
+        
+    conn = get_db_connection()
+    deposit = conn.execute('SELECT * FROM deposits WHERE id = ?', (id,)).fetchone()
+    
+    if deposit and deposit['status'] == 'Pending':
+        conn.execute('UPDATE deposits SET status = "Approved" WHERE id = ?', (id,))
+        conn.execute('UPDATE users SET balance = balance + ? WHERE username = ?', (deposit['amount'], deposit['username']))
+        conn.commit()
+        
+    conn.close()
+    return redirect(url_for('admin'))
+
+@app.route('/admin/approve_order/<int:id>')
+def approve_order(id):
+    if 'role' not in session or session['role'] != 'admin':
+        return "Access Denied!"
+        
+    conn = get_db_connection()
+    conn.execute('UPDATE orders SET status = "Completed" WHERE id = ?', (id,))
+    conn.commit()
+    conn.close()
+    
+    return redirect(url_for('admin'))
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=True)
+
