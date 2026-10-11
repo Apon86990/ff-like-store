@@ -2,56 +2,67 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Panel - FF Like Store</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - FF Store</title>
+    <style>
+        body { background: #0f172a; color: #fff; font-family: Arial, sans-serif; padding: 20px; }
+        h1, h2 { color: #38bdf8; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 30px; background: #1e293b; border-radius: 8px; overflow: hidden; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #334155; }
+        th { background: #334155; }
+        a.btn { background: #10b981; color: white; padding: 6px 12px; text-decoration: none; border-radius: 4px; font-size: 14px; }
+        a.logout { color: #f87171; float: right; text-decoration: none; font-weight: bold; }
+    </style>
 </head>
-<body class="bg-gray-900 text-white p-6">
-    <h1 class="text-2xl font-bold text-cyan-400 mb-6">FF Like Store - Admin Panel</h1>
+<body>
+    <a href="/logout" class="logout">Logout</a>
+    <h1>👑 Admin Dashboard</h1>
+    <br>
 
-    <h2 class="text-xl font-semibold mb-3 text-yellow-400">Recent Orders</h2>
-    <div class="overflow-x-auto mb-8">
-        <table class="w-full text-left bg-gray-800 rounded-lg overflow-hidden">
-            <tr class="bg-gray-700 text-cyan-300">
-                <th class="p-3">ID</th>
-                <th class="p-3">User ID</th>
-                <th class="p-3">Player ID</th>
-                <th class="p-3">Item</th>
-                <th class="p-3">Price</th>
-                <th class="p-3">Status</th>
-            </tr>
-            {% for order in orders %}
-            <tr class="border-b border-gray-700">
-                <td class="p-3">{{ order[0] }}</td>
-                <td class="p-3">{{ order[1] }}</td>
-                <td class="p-3">{{ order[2] }}</td>
-                <td class="p-3">{{ order[3] }}</td>
-                <td class="p-3">{{ order[4] }} BDT</td>
-                <td class="p-3 font-bold text-green-400">{{ order[5] }}</td>
-            </tr>
-            {% endfor %}
-        </table>
-    </div>
+    <h2>💵 Pending Deposits</h2>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>User</th>
+            <th>Amount</th>
+            <th>Trx ID</th>
+            <th>Action</th>
+        </tr>
+        {% for deposit in deposits %}
+        <tr>
+            <td>{{ deposit.id }}</td>
+            <td>{{ deposit.username }}</td>
+            <td>৳{{ deposit.amount }}</td>
+            <td>{{ deposit.trx_id }}</td>
+            <td><a href="/admin/approve_deposit/{{ deposit.id }}" class="btn">Approve</a></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5">No pending deposits.</td></tr>
+        {% endfor %}
+    </table>
 
-    <h2 class="text-xl font-semibold mb-3 text-yellow-400">Recent Deposits</h2>
-    <div class="overflow-x-auto">
-        <table class="w-full text-left bg-gray-800 rounded-lg overflow-hidden">
-            <tr class="bg-gray-700 text-cyan-300">
-                <th class="p-3">ID</th>
-                <th class="p-3">Trx ID</th>
-                <th class="p-3">Amount</th>
-                <th class="p-3">User ID</th>
-                <th class="p-3">Status</th>
-            </tr>
-            {% for dep in deposits %}
-            <tr class="border-b border-gray-700">
-                <td class="p-3">{{ dep[0] }}</td>
-                <td class="p-3">{{ dep[1] }}</td>
-                <td class="p-3">{{ dep[2] }} BDT</td>
-                <td class="p-3">{{ dep[3] }}</td>
-                <td class="p-3 font-bold text-green-400">{{ dep[4] }}</td>
-            </tr>
-            {% endfor %}
-        </table>
-    </div>
+    <h2>💎 Pending Diamond Orders</h2>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>User</th>
+            <th>Item</th>
+            <th>Player UID</th>
+            <th>Price</th>
+            <th>Action</th>
+        </tr>
+        {% for order in orders %}
+        <tr>
+            <td>{{ order.id }}</td>
+            <td>{{ order.username }}</td>
+            <td>{{ order.item_name }}</td>
+            <td>{{ order.player_id }}</td>
+            <td>৳{{ order.price }}</td>
+            <td><a href="/admin/approve_order/{{ order.id }}" class="btn">Complete Order</a></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6">No pending orders.</td></tr>
+        {% endfor %}
+    </table>
 </body>
 </html>
